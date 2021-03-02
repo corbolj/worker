@@ -11,7 +11,8 @@ steps:
     repo: '${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}'
     revision: '${{CF_REVISION}}'
     git: github
-  CreateCodefreshDemoNamespace:
+  gettags:
+    title: Updated the pre-release tag
     image: everpeace/curl-jq:latest
     stage: "version"
     commands:
