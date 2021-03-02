@@ -1,0 +1,39 @@
+version: '1.0'
+
+stages:
+  - "version"
+  - "build"
+steps:
+  main_clone:
+    title: Cloning main repository...
+    stage: "version"
+    type: git-clone
+    repo: '${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}'
+    revision: '${{CF_REVISION}}'
+    git: github
+  CreateCodefreshDemoNamespace:
+    image: everpeace/curl-jq:latest
+    stage: "version"
+    commands:
+      - current_tag=$(curl https://api.github.com/repos/corbolj/result/releases | jq -S '.[0].tag_name' |  sed 's/.\(.*\)/\1/' | sed 's/\(.*\)./\1/')
+      - major_version=$(echo $current_tag | cut -d'.' -f1)
+      - cur_minor_version=$(echo $current_tag | cut -d'.' -f2)
+      - incremental_version=$(echo $current_tag | cut -d'.' -f3)
+      - new_minor_version=$(($cur_minor_version+1))
+      - new_tag="${major_version}.${new_minor_version}.0"
+      - cf_export NEW_TAG=$new_tag
+  github_release:
+    type: github-release
+    title: Adding a Pre-Release
+    stage: "version"
+    arguments:
+      prerelease: false
+      release_name: ${{NEW_TAG}}
+      release_tag: ${{NEW_TAG}}
+  BuildingDockerImage:
+    title: Building Docker Image
+    stage: "build"
+    type: build
+    image_name: corbolj/result
+    tag: '${{NEW_TAG}}'
+    dockerfile: Dockerfile
