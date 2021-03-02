@@ -15,7 +15,7 @@ steps:
     image: everpeace/curl-jq:latest
     stage: "version"
     commands:
-      - current_tag=$(curl https://api.github.com/repos/corbolj/result/releases | jq -S '.[0].tag_name' |  sed 's/.\(.*\)/\1/' | sed 's/\(.*\)./\1/')
+      - current_tag=$(curl https://api.github.com/repos/corbolj/worker/releases | jq -S '.[0].tag_name' |  sed 's/.\(.*\)/\1/' | sed 's/\(.*\)./\1/')
       - major_version=$(echo $current_tag | cut -d'.' -f1)
       - cur_minor_version=$(echo $current_tag | cut -d'.' -f2)
       - incremental_version=$(echo $current_tag | cut -d'.' -f3)
@@ -34,6 +34,6 @@ steps:
     title: Building Docker Image
     stage: "build"
     type: build
-    image_name: corbolj/result
+    image_name: corbolj/worker
     tag: '${{NEW_TAG}}'
     dockerfile: Dockerfile
